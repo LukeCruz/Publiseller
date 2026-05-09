@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Publiseller – Gestão de Anúncios em Marketplaces</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #080b08;
+    --dark: #0e130e;
+    --green: #00e665;
+    --green-dim: #00b84d;
+    --green-glow: rgba(0,230,101,0.18);
+    --white: #f0f5f0;
+    --gray: #8a9c8a;
+    --border: rgba(0,230,101,0.15);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--black); color: var(--white); font-family: 'DM Sans', sans-serif; overflow-x: hidden; }
+  h1, h2, h3, h4 { font-family: 'Syne', sans-serif; }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 60px;
+    background: rgba(8,11,8,0.88);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+  .logo { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.5rem; color: var(--white); letter-spacing: -1px; }
+  .logo span { color: var(--green); }
+  nav ul { list-style: none; display: flex; gap: 36px; }
+  nav ul a { color: var(--gray); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color .2s; }
+  nav ul a:hover { color: var(--green); }
+  .nav-cta { background: var(--green); color: var(--black); font-family: 'Syne', sans-serif; font-weight: 700; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-size: 0.9rem; transition: background .2s, transform .15s; }
+  .nav-cta:hover { background: #00ff70; transform: translateY(-1px); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: grid; grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 120px 60px 80px;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 80% at 100% 50%, rgba(0,230,101,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-grid-bg {
+    position: absolute; inset: 0;
+    background-image: linear-gradient(rgba(0,230,101,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,230,101,0.04) 1px, transparent 1px);
+    background-size: 60px 60px; pointer-events: none;
+  }
+  .hero-label {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(0,230,101,0.1); border: 1px solid var(--border);
+    color: var(--green); font-size: 0.78rem; font-weight: 600;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    padding: 7px 16px; border-radius: 100px; margin-bottom: 28px;
+    animation: fadeUp .6s ease both;
+  }
+  .hero-label::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 1.8s ease infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.4)} }
+  .hero h1 { font-size: clamp(2.6rem, 5vw, 4.2rem); font-weight: 800; line-height: 1.08; letter-spacing: -2px; animation: fadeUp .7s .1s ease both; }
+  .hero h1 .accent { color: var(--green); }
+  .hero h1 .line-muted { color: var(--gray); }
+  .hero-sub { margin-top: 24px; color: var(--gray); font-size: 1.05rem; line-height: 1.7; max-width: 480px; animation: fadeUp .7s .2s ease both; }
+  .hero-actions { margin-top: 42px; display: flex; gap: 16px; flex-wrap: wrap; animation: fadeUp .7s .3s ease both; }
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: var(--green); color: var(--black);
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem;
+    padding: 16px 36px; border-radius: 8px; text-decoration: none; border: none; cursor: pointer;
+    transition: background .2s, transform .15s, box-shadow .2s;
+    box-shadow: 0 0 30px rgba(0,230,101,0.3);
+  }
+  .btn-primary:hover { background: #00ff70; transform: translateY(-2px); box-shadow: 0 0 50px rgba(0,230,101,0.45); }
+  .btn-secondary {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: transparent; color: var(--white);
+    font-family: 'Syne', sans-serif; font-weight: 600; font-size: 1rem;
+    padding: 16px 32px; border-radius: 8px; text-decoration: none;
+    border: 1px solid rgba(255,255,255,0.15); transition: border-color .2s, color .2s;
+  }
+  .btn-secondary:hover { border-color: var(--green); color: var(--green); }
+  .hero-stats { display: flex; gap: 40px; margin-top: 56px; animation: fadeUp .7s .4s ease both; }
+  .stat-item { display: flex; flex-direction: column; gap: 4px; }
+  .stat-num { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 800; color: var(--green); }
+  .stat-label { font-size: 0.8rem; color: var(--gray); text-transform: uppercase; letter-spacing: .8px; }
+
+  /* HERO PHOTO */
+  .hero-visual { display: flex; justify-content: center; align-items: flex-end; position: relative; animation: fadeUp .8s .2s ease both; }
+  .hero-photo-wrap { position: relative; width: 100%; max-width: 500px; }
+  .hero-photo-wrap img {
+    width: 100%; border-radius: 20px; display: block;
+    background: #080b08;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,230,101,0.12);
+  }
+  .hero-badge {
+    position: absolute; bottom: -20px; left: -20px;
+    background: var(--dark); border: 1px solid var(--border);
+    border-radius: 14px; padding: 18px 22px;
+    display: flex; align-items: center; gap: 14px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    animation: float 4s ease-in-out infinite;
+  }
+  .badge-icon { width: 44px; height: 44px; border-radius: 10px; background: var(--green-glow); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; }
+  .badge-text strong { font-family: 'Syne', sans-serif; font-size: 1rem; color: var(--green); display: block; }
+  .badge-text span { font-size: 0.75rem; color: var(--gray); }
+  .hero-tag-top {
+    position: absolute; top: 24px; right: -16px;
+    background: var(--green); color: var(--black);
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.8rem;
+    padding: 8px 16px; border-radius: 100px; white-space: nowrap;
+    box-shadow: 0 8px 24px rgba(0,230,101,0.4);
+    animation: float 3.5s 1s ease-in-out infinite;
+  }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+
+  /* MARQUEE */
+  .marquee-strip { background: var(--green); padding: 14px 0; overflow: hidden; white-space: nowrap; }
+  .marquee-inner { display: inline-flex; animation: marquee 18s linear infinite; }
+  .marquee-item { display: inline-flex; align-items: center; gap: 12px; font-family: 'Syne', sans-serif; font-weight: 700; color: var(--black); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; padding: 0 48px; }
+  .marquee-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(0,0,0,0.3); }
+  @keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+
+  /* SECTION */
+  section { padding: 100px 60px; }
+  .section-label { display: inline-flex; align-items: center; gap: 8px; color: var(--green); font-size: 0.78rem; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 16px; }
+  .section-label::before { content: ''; width: 24px; height: 2px; background: var(--green); }
+  .section-title { font-size: clamp(2rem, 3.5vw, 3rem); font-weight: 800; letter-spacing: -1.5px; line-height: 1.1; max-width: 680px; }
+  .section-title .accent { color: var(--green); }
+  .section-sub { margin-top: 18px; color: var(--gray); font-size: 1.05rem; line-height: 1.7; max-width: 560px; }
+
+  /* PROBLEMA */
+  .problem-section { background: var(--dark); }
+  .problem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; margin-top: 60px; }
+  .problem-list { display: flex; flex-direction: column; gap: 20px; }
+  .problem-item { display: flex; gap: 16px; align-items: flex-start; padding: 24px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); background: rgba(255,255,255,0.02); transition: border-color .3s, background .3s; }
+  .problem-item:hover { border-color: var(--border); background: rgba(0,230,101,0.04); }
+  .problem-icon { width: 42px; height: 42px; flex-shrink: 0; background: rgba(255,60,60,0.1); border: 1px solid rgba(255,60,60,0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
+  .problem-item h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 6px; }
+  .problem-item p { font-size: 0.85rem; color: var(--gray); line-height: 1.6; }
+  .solution-card { background: linear-gradient(135deg, rgba(0,230,101,0.08) 0%, rgba(0,230,101,0.02) 100%); border: 1px solid var(--border); border-radius: 20px; padding: 48px; position: relative; overflow: hidden; }
+  .solution-card::before { content: ''; position: absolute; top: -40px; right: -40px; width: 200px; height: 200px; border-radius: 50%; background: radial-gradient(circle, rgba(0,230,101,0.12) 0%, transparent 70%); }
+  .solution-card h3 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.8px; margin-bottom: 20px; }
+  .solution-card h3 span { color: var(--green); }
+  .solution-features { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+  .solution-features li { display: flex; align-items: center; gap: 12px; font-size: 0.95rem; }
+  .solution-features li::before { content: '✓'; color: var(--green); font-weight: 800; width: 24px; height: 24px; background: rgba(0,230,101,0.12); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; flex-shrink: 0; }
+
+  /* MARKETPLACES */
+  .mp-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 60px; }
+  .mp-card { border-radius: 20px; padding: 40px 32px; border: 1px solid var(--border); background: var(--dark); position: relative; overflow: hidden; transition: transform .3s, border-color .3s, box-shadow .3s; }
+  .mp-card:hover { transform: translateY(-6px); box-shadow: 0 30px 80px rgba(0,0,0,0.4); }
+  .mp-card.ml { border-top: 3px solid #ffe600; }
+  .mp-card.ml:hover { border-color: #ffe600; box-shadow: 0 30px 80px rgba(255,230,0,0.1); }
+  .mp-card.sh { border-top: 3px solid #ff6833; }
+  .mp-card.sh:hover { border-color: #ff6833; box-shadow: 0 30px 80px rgba(255,104,51,0.1); }
+  .mp-card.az { border-top: 3px solid #ff9900; }
+  .mp-card.az:hover { border-color: #ff9900; box-shadow: 0 30px 80px rgba(255,153,0,0.1); }
+  .mp-logo-area { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
+  .mp-logo-icon { width: 56px; height: 56px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; }
+  .mp-logo-icon.ml { background: rgba(255,230,0,0.1); }
+  .mp-logo-icon.sh { background: rgba(255,104,51,0.1); }
+  .mp-logo-icon.az { background: rgba(255,153,0,0.1); }
+  .mp-name { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 800; }
+  .mp-sub { font-size: 0.78rem; color: var(--gray); }
+  .mp-card p { color: var(--gray); font-size: 0.9rem; line-height: 1.7; margin-bottom: 28px; }
+  .mp-features { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .mp-features li { font-size: 0.85rem; color: var(--white); display: flex; align-items: center; gap: 10px; }
+  .mp-features li span { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .ml .mp-features li span { background: #ffe600; }
+  .sh .mp-features li span { background: #ff6833; }
+  .az .mp-features li span { background: #ff9900; }
+
+  /* PROCESSO */
+  .process-section { background: var(--dark); }
+  .process-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; margin-top: 60px; position: relative; }
+  .process-steps::before { content: ''; position: absolute; top: 36px; left: 12.5%; right: 12.5%; height: 1px; background: linear-gradient(90deg, transparent, var(--green), var(--green), transparent); opacity: .3; }
+  .step { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 0 24px; }
+  .step-num { width: 72px; height: 72px; border-radius: 50%; border: 1px solid var(--border); background: var(--black); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800; color: var(--green); margin-bottom: 24px; position: relative; z-index: 1; transition: background .3s, box-shadow .3s; }
+  .step:hover .step-num { background: var(--green-glow); box-shadow: 0 0 30px rgba(0,230,101,0.3); }
+  .step h4 { font-size: 1rem; font-weight: 700; margin-bottom: 10px; }
+  .step p { font-size: 0.85rem; color: var(--gray); line-height: 1.6; }
+
+  /* RESULTADOS */
+  .results-section { text-align: center; }
+  .results-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; margin-top: 60px; border: 1px solid var(--border); border-radius: 20px; overflow: hidden; }
+  .result-item { padding: 48px 32px; background: var(--dark); transition: background .3s; }
+  .result-item:hover { background: rgba(0,230,101,0.05); }
+  .result-item + .result-item { border-left: 1px solid var(--border); }
+  .result-num { font-family: 'Syne', sans-serif; font-size: 3.2rem; font-weight: 800; color: var(--green); display: block; line-height: 1; margin-bottom: 10px; }
+  .result-label { color: var(--gray); font-size: 0.9rem; }
+
+  /* SOCIOS */
+  .partners-section { background: var(--dark); }
+  .partners-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; margin-top: 60px; }
+  .partners-photo-wrap { position: relative; }
+  .partners-photo-wrap img { width: 100%; border-radius: 20px; display: block; background: #080b08; box-shadow: 0 40px 100px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,230,101,0.12); }
+  .partners-photo-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(8,11,8,0.92)); border-radius: 0 0 20px 20px; padding: 40px 28px 24px; }
+  .partners-names-row { display: flex; gap: 16px; margin-top: 12px; }
+  .partner-name-tag { background: rgba(0,230,101,0.15); border: 1px solid rgba(0,230,101,0.3); border-radius: 8px; padding: 8px 14px; }
+  .partner-name-tag strong { font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700; color: var(--white); display: block; }
+  .partner-name-tag span { font-size: 0.72rem; color: var(--green); text-transform: uppercase; letter-spacing: .8px; font-weight: 600; }
+  .partners-info { display: flex; flex-direction: column; gap: 24px; }
+  .partner-card { padding: 28px; border-radius: 14px; border: 1px solid var(--border); background: rgba(0,230,101,0.03); transition: border-color .3s, transform .3s; }
+  .partner-card:hover { border-color: rgba(0,230,101,0.4); transform: translateX(4px); }
+  .partner-card-header { display: flex; align-items: center; gap: 16px; margin-bottom: 14px; }
+  .partner-avatar { width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.2rem; color: var(--black); flex-shrink: 0; }
+  .partner-avatar.lc { background: linear-gradient(135deg, var(--green-dim), var(--green)); }
+  .partner-avatar.wb { background: linear-gradient(135deg, #00b84d, #00e665cc); }
+  .partner-card h4 { font-size: 1.05rem; font-weight: 700; }
+  .partner-card .role { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: var(--green); font-weight: 600; margin-top: 2px; }
+  .partner-card p { color: var(--gray); font-size: 0.88rem; line-height: 1.65; }
+  .cert-badge { padding: 22px 24px; border-radius: 14px; border: 1px solid rgba(0,230,101,0.25); background: rgba(0,230,101,0.05); display: flex; gap: 16px; align-items: center; }
+  .cert-badge-icon { font-size: 2rem; flex-shrink: 0; }
+  .cert-badge-text strong { font-family: 'Syne', sans-serif; font-weight: 700; font-size: .95rem; display: block; margin-bottom: 4px; }
+  .cert-badge-text span { font-size: .82rem; color: var(--gray); }
+
+  /* DEPOIMENTOS */
+  .testimonials-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 60px; }
+  .testimonial { padding: 32px; border-radius: 16px; border: 1px solid var(--border); background: var(--dark); transition: border-color .3s, transform .3s; }
+  .testimonial:hover { border-color: rgba(0,230,101,0.4); transform: translateY(-4px); }
+  .testimonial-stars { color: var(--green); font-size: 0.9rem; margin-bottom: 18px; }
+  .testimonial p { color: var(--gray); font-size: 0.9rem; line-height: 1.7; margin-bottom: 24px; }
+  .testimonial-author { display: flex; align-items: center; gap: 14px; }
+  .author-avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, var(--green-dim), var(--green)); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem; color: var(--black); flex-shrink: 0; }
+  .author-name { font-weight: 600; font-size: 0.9rem; }
+  .author-role { font-size: 0.78rem; color: var(--gray); }
+
+  /* LEAD */
+  .lead-section { background: linear-gradient(135deg, rgba(0,230,101,0.06) 0%, var(--dark) 60%); border-top: 1px solid var(--border); text-align: center; }
+  .lead-inner { max-width: 640px; margin: 0 auto; }
+  .lead-inner .section-title { margin: 0 auto 16px; }
+  .lead-inner .section-sub { margin: 0 auto 48px; }
+  .lead-form { display: flex; flex-direction: column; gap: 16px; text-align: left; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 8px; }
+  .form-group label { font-size: 0.82rem; font-weight: 600; color: var(--gray); text-transform: uppercase; letter-spacing: .7px; }
+  .form-group input, .form-group select, .form-group textarea { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 14px 18px; color: var(--white); font-family: 'DM Sans', sans-serif; font-size: 0.95rem; outline: none; transition: border-color .2s, background .2s; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--green); background: rgba(0,230,101,0.06); }
+  .form-group select { cursor: pointer; }
+  .form-group select option { background: #111; }
+  .form-group textarea { resize: vertical; min-height: 100px; }
+  .form-submit { margin-top: 8px; background: var(--green); color: var(--black); font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.05rem; padding: 18px; border: none; border-radius: 10px; cursor: pointer; width: 100%; transition: background .2s, box-shadow .2s, transform .15s; box-shadow: 0 0 30px rgba(0,230,101,0.3); }
+  .form-submit:hover { background: #00ff70; box-shadow: 0 0 50px rgba(0,230,101,0.5); transform: translateY(-2px); }
+  .form-note { text-align: center; font-size: 0.78rem; color: var(--gray); margin-top: 12px; }
+
+  /* FAQ */
+  .faq-list { max-width: 760px; margin: 60px auto 0; display: flex; flex-direction: column; gap: 12px; }
+  .faq-item { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; transition: border-color .3s; }
+  .faq-item:hover { border-color: rgba(0,230,101,0.35); }
+  .faq-q { padding: 22px 28px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; background: var(--dark); transition: background .2s; user-select: none; }
+  .faq-q:hover { background: rgba(0,230,101,0.04); }
+  .faq-icon { width: 28px; height: 28px; border-radius: 50%; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; color: var(--green); font-size: 1rem; flex-shrink: 0; transition: transform .3s, background .2s; }
+  .faq-item.open .faq-icon { transform: rotate(45deg); background: var(--green-glow); }
+  .faq-a { display: none; padding: 0 28px 24px; color: var(--gray); font-size: 0.9rem; line-height: 1.7; background: var(--dark); }
+  .faq-item.open .faq-a { display: block; }
+
+  /* FOOTER */
+  footer { background: var(--black); border-top: 1px solid var(--border); padding: 60px; display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 60px; }
+  .footer-brand .logo { font-size: 1.6rem; margin-bottom: 16px; display: block; }
+  .footer-brand p { color: var(--gray); font-size: 0.88rem; line-height: 1.7; max-width: 300px; }
+  .footer-col h5 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--gray); margin-bottom: 20px; }
+  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .footer-col ul a { color: var(--gray); text-decoration: none; font-size: 0.9rem; transition: color .2s; }
+  .footer-col ul a:hover { color: var(--green); }
+  .footer-bottom { background: var(--black); border-top: 1px solid var(--border); padding: 24px 60px; display: flex; align-items: center; justify-content: space-between; }
+  .footer-bottom p { font-size: 0.82rem; color: var(--gray); }
+
+  .wpp-float { position: fixed; bottom: 32px; right: 32px; z-index: 200; width: 60px; height: 60px; border-radius: 50%; background: #25d366; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 30px rgba(37,211,102,0.5); cursor: pointer; text-decoration: none; transition: transform .2s; animation: wppPulse 2.5s ease infinite; }
+  .wpp-float:hover { transform: scale(1.1); }
+  @keyframes wppPulse { 0%,100%{box-shadow:0 8px 30px rgba(37,211,102,0.5)} 50%{box-shadow:0 8px 50px rgba(37,211,102,0.75),0 0 0 8px rgba(37,211,102,0.15)} }
+  .wpp-float svg { width: 32px; height: 32px; fill: white; }
+
+  @media(max-width:1024px){
+    nav{padding:18px 32px;}
+    nav ul{display:none;}
+    .hero{grid-template-columns:1fr;padding:100px 32px 60px;gap:60px;}
+    .hero-visual{order:-1;}
+    .hero-photo-wrap{max-width:380px;}
+    section{padding:80px 32px;}
+    .mp-cards{grid-template-columns:1fr;}
+    .problem-grid{grid-template-columns:1fr;gap:48px;}
+    .partners-grid{grid-template-columns:1fr;gap:48px;}
+    .process-steps{grid-template-columns:1fr 1fr;gap:40px;}
+    .process-steps::before{display:none;}
+    .results-grid{grid-template-columns:1fr 1fr;}
+    .results-grid .result-item:nth-child(2n){border-left:1px solid var(--border);}
+    .results-grid .result-item:nth-child(3){border-top:1px solid var(--border);border-left:none;}
+    .testimonials-grid{grid-template-columns:1fr;}
+    footer{grid-template-columns:1fr;gap:40px;}
+    .footer-bottom{flex-direction:column;gap:10px;text-align:center;}
+    .form-row{grid-template-columns:1fr;}
+    .partners-names-row{flex-direction:column;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="logo">Publi<span>seller</span></span>
+  <ul>
+    <li><a href="#servicos">Serviços</a></li>
+    <li><a href="#processo">Como Funciona</a></li>
+    <li><a href="#socios">A Empresa</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <a href="https://wa.me/message/GMOO5KWYCQQQB1" class="nav-cta">Solicitar Proposta</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="inicio">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-content">
+    <div class="hero-label">Especialistas em Marketplace Ads</div>
+    <h1>
+      Seus anúncios<br>
+      <span class="accent">vendendo mais</span><br>
+      <span class="line-muted">todo dia.</span>
+    </h1>
+    <p class="hero-sub">Gerenciamos sua presença publicitária no Mercado Livre, Shopee e Amazon com estratégias data-driven para maximizar seu ROI e escalar suas vendas.</p>
+    <div class="hero-actions">
+      <a href="https://wa.me/message/GMOO5KWYCQQQB1" class="btn-primary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        Quero escalar minhas vendas
+      </a>
+      <a href="#processo" class="btn-secondary">Ver como funciona</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item"><span class="stat-num">+300%</span><span class="stat-label">Aumento médio de ROAS</span></div>
+      <div class="stat-item"><span class="stat-num">R$5M+</span><span class="stat-label">Em vendas gerenciadas</span></div>
+      <div class="stat-item"><span class="stat-num">120+</span><span class="stat-label">Clientes ativos</span></div>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="hero-photo-wrap">
+      <img src="/index.jpeg" />
+      <div class="hero-tag-top">🏆 Parceiro Oficial Mercado Ads</div>
+      <div class="hero-badge">
+        <div class="badge-icon">📈</div>
+        <div class="badge-text">
+          <strong>+120% ROAS</strong>
+          <span>em média nos primeiros 60 dias</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-strip">
+  <div class="marquee-inner">
+    <span class="marquee-item"><span class="marquee-dot"></span> Mercado Livre Ads</span>
+    <span class="marquee-item"><span class="marquee-dot"></span> Shopee Ads</span>
+    <span class="marquee-item"><span class="marquee-dot"></span> Amazon Ads</span>
+    <span class="marquee-item"><span class="marquee-dot"></span> Publiseller</span>
+    <span class="marquee-item"><span class="marquee-dot"></span> Escale suas Vendas</span>
+    <span class="marquee-item"><span class="marquee-dot"></span> ROI Comprovado</span>
+    <span class="marquee-item"><span class="marquee-dot"></span> Parceiro Mercado Ads</span>
+    <span class="marquee-item"><span class="marquee-dot"></span> Mercado Livre Ads</span>
+    <span class="marquee-item"><span class="marquee-dot"></span> Shopee Ads</span>
+    <span class="marquee-item"><span class="marquee-dot"></span> Amazon Ads</span>
+    <span class="marquee-item"><span class="marquee-dot"></span> Publiseller</span>
+    <span class="marquee-item"><span class="marquee-dot"></span> Escale suas Vendas</span>
+    <span class="marquee-item"><span class="marquee-dot"></span> ROI Comprovado</span>
+    <span class="marquee-item"><span class="marquee-dot"></span> Parceiro Mercado Ads</span>
+  </div>
+</div>
+
+<!-- PROBLEMA / SOLUÇÃO -->
+<section class="problem-section" id="servicos">
+  <div class="section-label">O Problema</div>
+  <h2 class="section-title">Por que seus anúncios <span class="accent">não estão convertendo?</span></h2>
+  <div class="problem-grid">
+    <div class="problem-list">
+      <div class="problem-item">
+        <div class="problem-icon">💸</div>
+        <div><h4>Verba desperdiçada sem estratégia</h4><p>Investir em anúncios sem dados e segmentação certa é jogar dinheiro fora. Cada clique sem conversão é prejuízo direto.</p></div>
+      </div>
+      <div class="problem-item">
+        <div class="problem-icon">⏱️</div>
+        <div><h4>Falta de tempo para otimizar</h4><p>Gerenciar campanhas exige dedicação diária. Vendedores focados na operação não têm horas para otimização contínua.</p></div>
+      </div>
+      <div class="problem-item">
+        <div class="problem-icon">📉</div>
+        <div><h4>Concorrência cada vez mais acirrada</h4><p>Os marketplaces estão saturados. Sem gestão profissional, seus produtos ficam invisíveis frente à concorrência.</p></div>
+      </div>
+      <div class="problem-item">
+        <div class="problem-icon">🧩</div>
+        <div><h4>Algoritmos complexos em constante mudança</h4><p>As plataformas atualizam regras constantemente. Quem não acompanha perde posicionamento e paga mais por clique.</p></div>
+      </div>
+    </div>
+    <div class="solution-card">
+      <h3>A <span>Publiseller</span> resolve tudo isso por você</h3>
+      <p style="color:var(--gray);font-size:.9rem;line-height:1.7;margin-bottom:28px;">Nossa equipe especializada cuida de toda a estratégia, execução e otimização das suas campanhas nos principais marketplaces do Brasil.</p>
+      <ul class="solution-features">
+        <li>Gestão completa e dedicada das campanhas</li>
+        <li>Otimização diária baseada em dados reais</li>
+        <li>Estratégia personalizada por nicho e produto</li>
+        <li>Relatórios transparentes com métricas claras</li>
+        <li>Especialistas em Mercado Livre, Shopee e Amazon</li>
+        <li>Parceiro oficial certificado pelo Mercado Ads</li>
+        <li>Comunicação direta e suporte ágil</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- MARKETPLACES -->
+<section id="marketplaces">
+  <div class="section-label">Plataformas</div>
+  <h2 class="section-title">Dominamos os <span class="accent">3 maiores marketplaces</span> do Brasil</h2>
+  <p class="section-sub">Estratégias específicas para cada plataforma, aproveitando ao máximo o potencial de cada ecossistema publicitário.</p>
+  <div class="mp-cards">
+    <div class="mp-card ml">
+      <div class="mp-logo-area"><div class="mp-logo-icon ml">🛒</div><div><div class="mp-name">Mercado Livre</div><div class="mp-sub">Product Ads &amp; Branding</div></div></div>
+      <p>O maior marketplace da América Latina. Gerenciamos anúncios de produto, campanhas de display e estratégias de posicionamento para maximizar sua visibilidade.</p>
+      <ul class="mp-features">
+        <li><span></span>Product Ads (anúncios de produto)</li>
+        <li><span></span>Display Ads e Banner</li>
+        <li><span></span>Campanhas automáticas e manuais</li>
+        <li><span></span>Otimização de CTR e conversão</li>
+        <li><span></span>Estratégia de palavras-chave</li>
+      </ul>
+    </div>
+    <div class="mp-card sh">
+      <div class="mp-logo-area"><div class="mp-logo-icon sh">🧡</div><div><div class="mp-name">Shopee</div><div class="mp-sub">Search Ads &amp; Boost</div></div></div>
+      <p>A plataforma que mais cresce no Brasil. Exploramos ao máximo os formatos de anúncio para posicionar seus produtos no topo das buscas com menor custo.</p>
+      <ul class="mp-features">
+        <li><span></span>Search Ads e Discovery Ads</li>
+        <li><span></span>Boost de produtos estratégico</li>
+        <li><span></span>Gestão de budget e lances</li>
+        <li><span></span>Campanhas de flash sale</li>
+        <li><span></span>Otimização de fichas de produto</li>
+      </ul>
+    </div>
+    <div class="mp-card az">
+      <div class="mp-logo-area"><div class="mp-logo-icon az">📦</div><div><div class="mp-name">Amazon</div><div class="mp-sub">Sponsored Products &amp; Brands</div></div></div>
+      <p>A gigante global com alta intenção de compra. Campanhas Sponsored Products, Brands e Display para escalar vendas com precisão cirúrgica.</p>
+      <ul class="mp-features">
+        <li><span></span>Sponsored Products</li>
+        <li><span></span>Sponsored Brands</li>
+        <li><span></span>Sponsored Display</li>
+        <li><span></span>Gestão de ACoS e TACoS</li>
+        <li><span></span>Estratégia de ranking orgânico</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- PROCESSO -->
+<section class="process-section" id="processo">
+  <div class="section-label">Como Funciona</div>
+  <h2 class="section-title">Do zero às vendas em <span class="accent">4 passos simples</span></h2>
+  <div class="process-steps">
+    <div class="step"><div class="step-num">01</div><h4>Diagnóstico &amp; Auditoria</h4><p>Analisamos sua conta, produtos, concorrentes e histórico de campanhas para identificar oportunidades reais de crescimento.</p></div>
+    <div class="step"><div class="step-num">02</div><h4>Estratégia Personalizada</h4><p>Criamos um plano sob medida com metas, orçamento otimizado e estratégia de palavras-chave para cada produto e plataforma.</p></div>
+    <div class="step"><div class="step-num">03</div><h4>Execução &amp; Otimização</h4><p>Ativamos campanhas e otimizamos diariamente com base em dados reais de performance, ajustando lances e segmentações.</p></div>
+    <div class="step"><div class="step-num">04</div><h4>Relatórios &amp; Escala</h4><p>Relatórios quinzenais com métricas que importam e reuniões estratégicas para escalar o que está funcionando.</p></div>
+  </div>
+</section>
+
+<!-- RESULTADOS -->
+<section class="results-section">
+  <div class="section-label" style="justify-content:center;">Resultados Reais</div>
+  <h2 class="section-title" style="margin:0 auto;">Números que <span class="accent">falam por si</span></h2>
+  <div class="results-grid">
+    <div class="result-item"><span class="result-num">+300%</span><div class="result-label">Aumento médio de ROAS nos primeiros 90 dias</div></div>
+    <div class="result-item"><span class="result-num">R$5M+</span><div class="result-label">Em volume de vendas gerenciadas mensalmente</div></div>
+    <div class="result-item"><span class="result-num">120+</span><div class="result-label">Vendedores ativos em nossa carteira</div></div>
+    <div class="result-item"><span class="result-num">-40%</span><div class="result-label">Redução média no custo por aquisição (CPA)</div></div>
+  </div>
+</section>
+
+<!-- SÓCIOS -->
+<section class="partners-section" id="socios">
+  <div class="section-label">Quem Somos</div>
+  <h2 class="section-title">Especialistas que <span class="accent">vivem o mercado</span> por dentro</h2>
+  <p class="section-sub">Participamos de eventos exclusivos, somos parceiros certificados e estamos sempre na vanguarda das melhores práticas em marketplace ads.</p>
+  <div class="partners-grid">
+    <div class="partners-photo-wrap">
